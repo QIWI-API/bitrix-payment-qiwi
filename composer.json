@@ -1,0 +1,32 @@
+{
+    "name": "qiwi/bitrix-payment-qiwi",
+    "description": "QIWI payment integration for 1C Bitrix",
+    "type": "bitrix-d7-module",
+    "version": "0.0.1",
+    "license": "MIT",
+    "homepage": "https://github.com/QIWI-API/bitrix-payment-qiwi",
+    "support": {
+        "issues": "https://github.com/QIWI-API/bitrix-payment-qiwi/issues"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://wpackagist.org"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "ext-curl": "*",
+        "composer/installers": "^1",
+        "qiwi/bill-payments-php-sdk": "^0"
+    },
+    "require-dev": {
+        "phpdocumentor/phpdocumentor": "^2"
+    },
+    "scripts": {
+        "docs": "phpdoc run"
+    },
+    "extra": {
+        "installer-name": "bitrix.payment.qiwi"
+    }
+}

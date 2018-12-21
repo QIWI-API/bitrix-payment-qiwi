@@ -1,0 +1,15 @@
+variables:
+    GIT_STRATEGY: fetch
+
+stages:
+    - deploy
+
+deploy:
+    stage: deploy
+    only:
+        - master
+    script:
+        - composer install --no-dev --no-progress --no-interaction
+        - rsync -rc ./* /var/www/bitrix-qiwi/local/modules/bitrix.payment.qiwi --exclude='.git'
+        - chgrp -Rf php-fpm /var/www/bitrix-qiwi/local/modules/bitrix.payment.qiwi
+        - chmod -Rf g+w /var/www/bitrix-qiwi/local/modules/bitrix.payment.qiwi
