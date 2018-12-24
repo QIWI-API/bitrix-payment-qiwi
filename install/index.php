@@ -10,6 +10,8 @@ IncludeModuleLangFile(__FILE__);
  */
 class bitrix_payment_qiwi extends CModule
 {
+    public $MODULE_ID = 'bitrix.payment.qiwi';
+    
     /**
      * bitrix_payment_qiwi constructor.
      */
@@ -18,7 +20,6 @@ class bitrix_payment_qiwi extends CModule
         // Get version.
         require __DIR__ . DIRECTORY_SEPARATOR . 'version.php';
 
-        $this->MODULE_ID = 'bitrix.payment.qiwi';
         $this->MODULE_NAME = GetMessage('QIWI_KASSA_MODULE_NAME');
         $this->MODULE_DESCRIPTION = GetMessage('QIWI_KASSA_MODULE_DESCRIPTION');
         $this->PARTNER_NAME = GetMessage('QIWI_KASSA_PARTNER_NAME');
