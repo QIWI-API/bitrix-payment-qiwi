@@ -18,8 +18,8 @@ use Bitrix\Sale\Payment;
 use Bitrix\Main\Web\Json;
 use CEventLog;
 
-if (!Loader::includeModule('bitrix.payment.qiwi')) {
-    die('Module bitrix.payment.qiwi is not installed');
+if (!Loader::includeModule('qiwikassa.checkout')) {
+    die('Module qiwikassa.checkout is not installed');
 }
 Loc::loadMessages(__FILE__);
 
@@ -28,7 +28,7 @@ Loc::loadMessages(__FILE__);
  *
  * @package Sale\Handlers\PaySystem
  */
-class Payment_QiwiHandler extends ServiceHandler implements IRefundExtended, IHold
+class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtended, IHold
 {
     /** @var string The secret key. */
     protected $secretKey;
@@ -165,7 +165,7 @@ class Payment_QiwiHandler extends ServiceHandler implements IRefundExtended, IHo
         CEventLog::Add([
             'SEVERITY' => 'SECURITY',
             'AUDIT_TYPE_ID' => 'PAYMENT_QIWI_NOTIFY',
-            'MODULE_ID' => 'payment.qiwi',
+            'MODULE_ID' => 'qiwikassa.checkout',
             'ITEM_ID' => 1,
             'DESCRIPTION' => print_r($reqData, true),
         ]);
@@ -214,8 +214,8 @@ class Payment_QiwiHandler extends ServiceHandler implements IRefundExtended, IHo
         //loggin notifies from Qiwi
         CEventLog::Add([
             'SEVERITY' => 'SECURITY',
-            'AUDIT_TYPE_ID' => 'PAYMENT_QIWI_NOTIFY_PROCESS_REQUEST',
-            'MODULE_ID' => 'payment.qiwi',
+            'AUDIT_TYPE_ID' => 'QIWI_KASSA_NOTIFY_PROCESS_REQUEST',
+            'MODULE_ID' => 'qiwikassa.checkout',
             'ITEM_ID' => 1,
             'DESCRIPTION' => print_r(['method' => 'processRequest', 'data' => $reqData], true),
         ]);
@@ -281,8 +281,8 @@ class Payment_QiwiHandler extends ServiceHandler implements IRefundExtended, IHo
         //loggin notifies from Qiwi
         CEventLog::Add([
             'SEVERITY' => 'SECURITY',
-            'AUDIT_TYPE_ID' => 'PAYMENT_QIWI_NOTIFY_STEP_2',
-            'MODULE_ID' => 'payment.qiwi',
+            'AUDIT_TYPE_ID' => 'QIWI_KASSA_NOTIFY_STEP_2',
+            'MODULE_ID' => 'qiwikassa.checkout',
             'ITEM_ID' => 2,
             'DESCRIPTION' => print_r(['method' => 'processNotifyAction', 'data' => $billData], true),
         ]);
@@ -308,8 +308,8 @@ class Payment_QiwiHandler extends ServiceHandler implements IRefundExtended, IHo
         //loggin notifies from Qiwi
         CEventLog::Add([
             'SEVERITY' => 'SECURITY',
-            'AUDIT_TYPE_ID' => 'PAYMENT_QIWI_NOTIFY_STEP_3',
-            'MODULE_ID' => 'payment.qiwi',
+            'AUDIT_TYPE_ID' => 'QIWI_KASSA_NOTIFY_STEP_3',
+            'MODULE_ID' => 'qiwikassa.checkout',
             'ITEM_ID' => 2,
             'DESCRIPTION' => print_r(['method' => 'processNotifyAction', 'data' => $result->isSuccess()], true),
         ]);
@@ -424,8 +424,8 @@ class Payment_QiwiHandler extends ServiceHandler implements IRefundExtended, IHo
         //loggin notifies from Qiwi
         CEventLog::Add([
             'SEVERITY' => 'SECURITY',
-            'AUDIT_TYPE_ID' => 'PAYMENT_QIWI_NOTIFY_CANCEL_START',
-            'MODULE_ID' => 'payment.qiwi',
+            'AUDIT_TYPE_ID' => 'QIWI_KASSA_NOTIFY_CANCEL_START',
+            'MODULE_ID' => 'qiwikassa.checkout',
             'ITEM_ID' => 3,
             'DESCRIPTION' => print_r(['method' => 'cancel', 'billId' => $billId], true),
         ]);
@@ -444,8 +444,8 @@ class Payment_QiwiHandler extends ServiceHandler implements IRefundExtended, IHo
         //loggin notifies from Qiwi
         CEventLog::Add([
             'SEVERITY' => 'SECURITY',
-            'AUDIT_TYPE_ID' => 'PAYMENT_QIWI_NOTIFY_CANCEL_END',
-            'MODULE_ID' => 'payment.qiwi',
+            'AUDIT_TYPE_ID' => 'QIWI_KASSA_NOTIFY_CANCEL_END',
+            'MODULE_ID' => 'qiwikassa.checkout',
             'ITEM_ID' => 3,
             'DESCRIPTION' => print_r(['method' => 'cancel', 'data' => $billInfo], true),
         ]);
@@ -497,8 +497,8 @@ class Payment_QiwiHandler extends ServiceHandler implements IRefundExtended, IHo
         //loggin notifies from Qiwi
         CEventLog::Add([
             'SEVERITY' => 'SECURITY',
-            'AUDIT_TYPE_ID' => 'PAYMENT_QIWI_NOTIFY_REFUND',
-            'MODULE_ID' => 'payment.qiwi',
+            'AUDIT_TYPE_ID' => 'QIWI_KASSA_NOTIFY_REFUND',
+            'MODULE_ID' => 'qiwikassa.checkout',
             'ITEM_ID' => 2,
             'DESCRIPTION' => print_r(['method' => 'refund', 'refundId' => $refundId, 'refundableSum' => $refundableSum, 'response' => $response, 'saved' => $saved->isSuccess()], true),
         ]);

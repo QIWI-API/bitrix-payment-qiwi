@@ -8,12 +8,12 @@ IncludeModuleLangFile(__FILE__);
 /**
  * QIWI payment gateway module installer.
  */
-class bitrix_payment_qiwi extends CModule
+class qiwikassa_checkout extends CModule
 {
-    public $MODULE_ID = 'bitrix.payment.qiwi';
-    
+    public $MODULE_ID = 'qiwikassa.checkout';
+
     /**
-     * bitrix_payment_qiwi constructor.
+     * qiwikassa_checkout constructor.
      */
     public function __construct()
     {
@@ -79,7 +79,7 @@ class bitrix_payment_qiwi extends CModule
      */
     public function InstallFiles()
     {
-        $this->copyRecursive(__DIR__ . '/payment_qiwi', dirname(__FILE__, 4) . '/php_interface/include/sale_payment/payment_qiwi');
+        $this->copyRecursive(__DIR__ . '/qiwikassa_checkout', dirname(__FILE__, 4) . '/php_interface/include/sale_payment/qiwikassa_checkout');
         $this->copyRecursive(__DIR__ . '/images', dirname(__FILE__, 5) . '/bitrix/images/sale/sale_payments');
     }
 
@@ -138,7 +138,7 @@ class bitrix_payment_qiwi extends CModule
      */
     public function UnInstallFiles()
     {
-        $this->deleteRecursive(dirname(__FILE__, 4) . '/php_interface/include/sale_payment/payment_qiwi');
+        $this->deleteRecursive(dirname(__FILE__, 4) . '/php_interface/include/sale_payment/qiwikassa_checkout');
         foreach (new DirectoryIterator(__DIR__ . '/images') as $file) {
             if ($file->isFile()) {
                 $this->deleteRecursive(dirname(__FILE__, 5) . '/bitrix/images/sale/sale_payments/' . $file->getBasename());
