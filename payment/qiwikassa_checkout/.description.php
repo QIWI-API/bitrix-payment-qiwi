@@ -11,7 +11,7 @@ Loc::loadMessages(__FILE__);
 $data = [
     'NAME' => Loc::getMessage('QIWI_KASSA_NAME'),
     'SORT' => 750,
-    'IS_AVAILABLE' => Manager::HANDLER_AVAILABLE_TRUE,
+    'IS_AVAILABLE' => function_exists('curl_version'),
     'CODES' => [
         'QIWI_KASSA_SECRET_API_KEY' => [
             'NAME' => Loc::getMessage('QIWI_KASSA_SECRET_API_KEY'),
