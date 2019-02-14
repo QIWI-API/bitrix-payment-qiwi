@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2c44116c58a3bc26feb969d4b62335fd",
+    "content-hash": "5ada3d9cead83cc71a8e691bc56d12d1",
     "packages": [
         {
             "name": "composer/installers",
@@ -228,28 +228,29 @@
         },
         {
             "name": "qiwi/bill-payments-php-sdk",
-            "version": "0.0.1",
+            "version": "0.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/QIWI-API/bill-payments-php-sdk.git",
-                "reference": "caf23308c5c6b52705c3295deb97745b95db2898"
+                "reference": "c91a8b0608714dcf32fb14fa2e818f9ff7ed021b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/QIWI-API/bill-payments-php-sdk/zipball/caf23308c5c6b52705c3295deb97745b95db2898",
-                "reference": "caf23308c5c6b52705c3295deb97745b95db2898",
+                "url": "https://api.github.com/repos/QIWI-API/bill-payments-php-sdk/zipball/c91a8b0608714dcf32fb14fa2e818f9ff7ed021b",
+                "reference": "c91a8b0608714dcf32fb14fa2e818f9ff7ed021b",
                 "shasum": ""
             },
             "require": {
-                "curl/curl": "^1.9",
+                "curl/curl": "1.9.*",
                 "ext-curl": "*",
                 "ext-json": "*",
-                "php": ">=5.5.0",
-                "ramsey/uuid": "^3.8"
+                "php": ">=5.6.0",
+                "ramsey/uuid": "3.8.*"
             },
             "require-dev": {
-                "phpdocumentor/phpdocumentor": "*",
-                "phpunit/phpunit": "4.8.36"
+                "phpdocumentor/phpdocumentor": "2.8.*",
+                "phpunit/phpunit": "5.7.27",
+                "squizlabs/php_codesniffer": "3.4.*"
             },
             "type": "library",
             "autoload": {
@@ -263,7 +264,7 @@
             ],
             "description": "Universal payments API SDK",
             "homepage": "https://github.com/QIWI-API/bill-payments-php-sdk",
-            "time": "2018-10-23T10:00:56+00:00"
+            "time": "2019-01-24T08:49:29+00:00"
         },
         {
             "name": "ramsey/uuid",
@@ -2592,20 +2593,20 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.36.0",
+            "version": "v1.37.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "730c9c4471b5152d23061feb02b03382264c8a15"
+                "reference": "66be9366c76cbf23e82e7171d47cbfa54a057a62"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/730c9c4471b5152d23061feb02b03382264c8a15",
-                "reference": "730c9c4471b5152d23061feb02b03382264c8a15",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/66be9366c76cbf23e82e7171d47cbfa54a057a62",
+                "reference": "66be9366c76cbf23e82e7171d47cbfa54a057a62",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.3",
+                "php": ">=5.4.0",
                 "symfony/polyfill-ctype": "^1.8"
             },
             "require-dev": {
@@ -2616,7 +2617,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.36-dev"
+                    "dev-master": "1.37-dev"
                 }
             },
             "autoload": {
@@ -2654,7 +2655,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2018-12-16T10:34:11+00:00"
+            "time": "2019-01-14T14:59:29+00:00"
         },
         {
             "name": "zendframework/zend-cache",

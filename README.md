@@ -27,7 +27,7 @@ Another way is setup module from source.
 Get package witch Composer into modules directory of yours site source.
 
 ```bash
-git clone git@github.com:QIWI-API/bitrix-payment-qiwi.git
+git clone git@github.com:QIWI-API/bitrix-payment-qiwi.git qiwikassa.checkout
 cd bitrix-payment-qiwi
 composer install --no-dev
 ``` 

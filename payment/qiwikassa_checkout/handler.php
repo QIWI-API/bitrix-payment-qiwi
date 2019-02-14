@@ -94,18 +94,23 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
                     if ($emailProp) {
                         $email = $emailProp->getValue();
                     }
+                    $themeCode = $this->getBusinessValue($payment, 'QIWI_KASSA_THEME_CODE');
                     $billParams = [
                         'amount' => $payment->getSum(),
                         'currency' => $payment->getField('CURRENCY'),
                         'comment' => $order->getField('USER_DESCRIPTION'),
                         'expirationDateTime' => $this->qiwiApi->getLifetimeByDay($this->getBusinessValue($payment, 'QIWI_KASSA_BILL_LIFETIME')),
                         'account' => $order->getField('USER_ID'),
+                        'customFields' => [],
                     ];
                     if (!!$phone) {
                         $billParams['phone'] = $phone;
                     }
                     if (!!$email) {
                         $billParams['email'] = $email;
+                    }
+                    if (!!$themeCode) {
+                        $billParams['customFields']['themeCode'] = $themeCode;
                     }
                     //creating bill, forming data for payment page
                     try {
@@ -410,14 +415,14 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
         }
         return;
     }
-    
+
     /**
      * Cancels qiwi payment.
-     * 
+     *
      * @param Payment $payment
      * @return ServiceResult
      */
-    
+
     public function cancel(Payment $payment){
         $result = new ServiceResult();
         $billId = $payment->getField('PS_INVOICE_ID');
@@ -451,11 +456,11 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
         ]);
         return $result;
     }
-    
-    
+
+
     /**
      * Confirm Qiwi payment, we don't use this method;
-     * 
+     *
      * @param Payment $payment
      * @return ServiceResult
      */

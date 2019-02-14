@@ -50,10 +50,17 @@ $data = [
         ],
         'QIWI_KASSA_CHANGE_STATUS_PAY' => [
             'NAME' => Loc::getMessage('QIWI_KASSA_CHANGE_STATUS_PAY'),
+            'SORT' => 300,
             'GROUP' => 'GENERAL_SETTINGS',
             'INPUT' => [
                 'TYPE' => 'Y/N',
             ],
+        ],
+        'QIWI_KASSA_THEME_CODE' => [
+            'NAME' => Loc::getMessage('QIWI_KASSA_THEME_CODE'),
+            'SORT' => 400,
+            'DESCRIPTION' => Loc::getMessage('QIWI_KASSA_THEME_CODE_DESC'),
+            'GROUP' => 'GENERAL_SETTINGS',
         ],
     ],
 ];
