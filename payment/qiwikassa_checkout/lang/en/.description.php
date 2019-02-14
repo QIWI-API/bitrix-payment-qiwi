@@ -8,3 +8,5 @@ $MESS['QIWI_KASSA_BILL_LIFETIME_DESC'] = 'Days';
 $MESS['QIWI_KASSA_NOTIFY_URL'] = 'Notify URI';
 $MESS['QIWI_KASSA_NOTIFY_URL_DESC'] = 'Set thi value in settings of the store payment system';
 $MESS['QIWI_KASSA_CHANGE_STATUS_PAY'] = 'Change payment status with change of Qiwi cashbox payment status';
+$MESS['QIWI_KASSA_THEME_CODE'] = 'Theme style code';
+$MESS['QIWI_KASSA_THEME_CODE_DESC'] = 'Personalization code of the payment form style is presented in the payment system store settings.';
