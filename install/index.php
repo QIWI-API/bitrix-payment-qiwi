@@ -8,22 +8,23 @@ IncludeModuleLangFile(__FILE__);
  */
 class qiwikassa_checkout extends CModule
 {
+    /** @var string The module ID. */
     public $MODULE_ID = 'qiwikassa.checkout';
 
     /**
-     * qiwikassa_checkout constructor.
+     * Constructor.
      */
     public function __construct()
     {
         // Get version.
-        require __DIR__ . DIRECTORY_SEPARATOR . 'version.php';
+        require __DIR__.DIRECTORY_SEPARATOR.'version.php';
         /** @var array $arModuleVersion Module version metadata. */
 
-        $this->MODULE_NAME = GetMessage('QIWI_KASSA_MODULE_NAME');
-        $this->MODULE_DESCRIPTION = GetMessage('QIWI_KASSA_MODULE_DESCRIPTION');
-        $this->PARTNER_NAME = GetMessage('QIWI_KASSA_PARTNER_NAME');
-        $this->PARTNER_URI = GetMessage('QIWI_KASSA_PARTNER_URI');
-        $this->MODULE_VERSION = $arModuleVersion['VERSION'];
+        $this->MODULE_NAME         = GetMessage('QIWI_KASSA_MODULE_NAME');
+        $this->MODULE_DESCRIPTION  = GetMessage('QIWI_KASSA_MODULE_DESCRIPTION');
+        $this->PARTNER_NAME        = GetMessage('QIWI_KASSA_PARTNER_NAME');
+        $this->PARTNER_URI         = GetMessage('QIWI_KASSA_PARTNER_URI');
+        $this->MODULE_VERSION      = $arModuleVersion['VERSION'];
         $this->MODULE_VERSION_DATE = $arModuleVersion['VERSION_DATE'];
     }
 
@@ -38,15 +39,15 @@ class qiwikassa_checkout extends CModule
     }
 
     /**
-     * Recursive copy files to directory
+     * Recursive copy files to directory.
      *
-     * @param string $from Source path
-     * @param string $to Distance directory path
+     * @param  string  $from  Source path.
+     * @param  string  $to  Distance directory path.
      */
     protected function copyRecursive($from, $to)
     {
         if (file_exists($from)) {
-            if (!file_exists($to)) {
+            if (! file_exists($to)) {
                 mkdir($to, fileperms($from), true);
             }
             if (is_dir($to)) {
@@ -57,8 +58,8 @@ class qiwikassa_checkout extends CModule
                         RecursiveIteratorIterator::SELF_FIRST
                     );
                     foreach ($files as $file) {
-                        $fromPath = $from . '/' . $files->getSubPathName();
-                        $toPath = $to . '/' . $files->getSubPathName();
+                        $fromPath = $from.'/'.$files->getSubPathName();
+                        $toPath = $to.'/'.$files->getSubPathName();
                         if ($file->isDir()) {
                             mkdir($toPath, fileperms($fromPath), true);
                         } elseif ($file->isFile() || $file->isLink()) {
@@ -66,7 +67,7 @@ class qiwikassa_checkout extends CModule
                         }
                     }
                 } elseif (is_file($from) || is_link($from)) {
-                    $toPath = $to . '/' . basename($from);
+                    $toPath = $to.'/'.basename($from);
                     copy($from, $toPath);
                 }
             }
@@ -78,14 +79,18 @@ class qiwikassa_checkout extends CModule
      */
     public function InstallFiles()
     {
-        $this->copyRecursive(__DIR__ . '/qiwikassa_checkout', dirname(__FILE__, 4) . '/php_interface/include/sale_payment/qiwikassa_checkout');
-        $this->copyRecursive(__DIR__ . '/images', dirname(__FILE__, 5) . '/bitrix/images/sale/sale_payments');
+        $this->copyRecursive(
+            __DIR__.'/qiwikassa_checkout',
+            dirname(__FILE__, 4).'/php_interface/include/sale_payment/qiwikassa_checkout'
+        );
+        $this->copyRecursive(__DIR__.'/images', dirname(__FILE__, 5).'/bitrix/images/sale/sale_payments');
     }
 
     /**
      * Uninstall module.
      */
-    public function DoUninstall() {
+    public function DoUninstall()
+    {
         COption::SetOptionInt($this->MODULE_ID, 'delete', true);
         UnRegisterModule($this->MODULE_ID);
         $this->UnInstallFiles();
@@ -110,7 +115,7 @@ class qiwikassa_checkout extends CModule
                 );
                 if (iterator_count($files) === 0 && $onlyIfEmpty) {
                     rmdir($path);
-                } elseif (!$onlyIfEmpty) {
+                } elseif (! $onlyIfEmpty) {
                     foreach ($files as $file) {
                         $filePath = $file->getPathname();
                         if ($file->isDir()) {
@@ -126,7 +131,7 @@ class qiwikassa_checkout extends CModule
             } elseif (is_file($path) || is_link($path)) {
                 unlink($path);
             }
-            if (!file_exists($path)) {
+            if (! file_exists($path)) {
                 $parentPath = dirname($path);
                 $this->deleteRecursive($parentPath, true);
             }
@@ -138,10 +143,14 @@ class qiwikassa_checkout extends CModule
      */
     public function UnInstallFiles()
     {
-        $this->deleteRecursive(dirname(__FILE__, 4) . '/php_interface/include/sale_payment/qiwikassa_checkout');
-        foreach (new DirectoryIterator(__DIR__ . '/images') as $file) {
+        $this->deleteRecursive(
+            dirname(__FILE__, 4).'/php_interface/include/sale_payment/qiwikassa_checkout'
+        );
+        foreach (new DirectoryIterator(__DIR__.'/images') as $file) {
             if ($file->isFile()) {
-                $this->deleteRecursive(dirname(__FILE__, 5) . '/bitrix/images/sale/sale_payments/' . $file->getBasename());
+                $this->deleteRecursive(
+                    dirname(__FILE__, 5).'/bitrix/images/sale/sale_payments/'.$file->getBasename()
+                );
             }
         }
     }

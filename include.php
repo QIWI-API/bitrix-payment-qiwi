@@ -16,18 +16,18 @@ try {
 include 'install/version.php';
 
 /** @var string CLIENT_NAME The client name. */
-if (!defined('CLIENT_NAME')) {
+if (! defined('CLIENT_NAME')) {
     define('CLIENT_NAME', '1C Bitrix');
 }
 
 /** @var string CLIENT_VERSION The client version. */
-if (!defined('CLIENT_VERSION')) {
+if (! defined('CLIENT_VERSION')) {
     define('CLIENT_VERSION', $arModuleVersion['VERSION']);
 }
 
 unset($arModuleVersion);
 
 // Autoload if needed.
-if (!class_exists('Qiwi\Api\BillPayments')) {
+if (! class_exists('Qiwi\Api\BillPayments')) {
     require_once 'vendor/autoload.php';
 }

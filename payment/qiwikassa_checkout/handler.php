@@ -25,10 +25,10 @@ try {
 } catch (LoaderException $e) {
     die($e->getMessage());
 }
-if (!class_exists('\Qiwi\Api\BillPayments', true)) {
+if (! class_exists('\Qiwi\Api\BillPayments', true)) {
     die('Module qiwikassa.checkout is not complete installed');
 }
-if (!defined('SITE_SERVER_NAME')) {
+if (! defined('SITE_SERVER_NAME')) {
     define('SITE_SERVER_NAME', $_SERVER['host']);
 }
 Loc::loadMessages(__FILE__);
@@ -46,21 +46,8 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
     /** @var BillPayments QIWI Api class. */
     protected $qiwiApi;
 
-    /**
-     * Init api.
-     *
-     * @param Payment $payment
-     * @throws \ErrorException
-     */
-    protected function initialise(Payment $payment) {
-        $this->secretKey = $this->getBusinessValue($payment, 'QIWI_KASSA_SECRET_API_KEY');
-        $this->secretKey = $this->getBusinessValue($payment, 'QIWI_KASSA_SECRET_API_KEY');
-        $this->qiwiApi = new BillPayments($this->secretKey, [
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYHOST => 2,
-            CURLOPT_CAINFO => dirname(__FILE__, 3) . '/cacert.pem',
-        ]);
-    }
+    /** @var bool THe debug flag. */
+    protected $debug = false;
 
     /**
      * Initiate pay handler.
@@ -79,10 +66,11 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
      * @throws \ErrorException
      * @throws \Exception
      */
-    public function initiatePay(Payment $payment, Request $request = null) {
+    public function initiatePay(Payment $payment, Request $request = null)
+    {
         global $APPLICATION;
         $result = new ServiceResult();
-        if (!$payment->isPaid()) {
+        if (! $payment->isPaid()) {
             /** @var \Bitrix\Sale\PaymentCollection $paymentCollection */
             $paymentCollection = $payment->getCollection();
             if ($paymentCollection) {
@@ -90,10 +78,10 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
                 $order = $paymentCollection->getOrder();
                 if ($order) {
                     $this->initialise($payment);
-                    //If order already has BillId(PS_INVOICE_ID), then find order by this BillID
+                    // If order already has BillId(PS_INVOICE_ID), then find order by this BillID.
                     $billId = $payment->getField('PS_INVOICE_ID');
-                    if (!$billId) {
-                        //otherwise we need to generate new BillID
+                    if (! $billId) {
+                        // Otherwise we need to generate new BillID.
                         $billId = $this->qiwiApi->generateId();
                         if ($billId) {
                             $setField = $payment->setField('PS_INVOICE_ID', $billId);
@@ -111,13 +99,14 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
                         $email = $emailProp->getValue();
                     }
                     $themeCode = $this->getBusinessValue($payment, 'QIWI_KASSA_THEME_CODE');
+                    $liveTime = intval($this->getBusinessValue($payment, 'QIWI_KASSA_BILL_LIFETIME'));
                     $billParams = [
-                        'amount' => $payment->getSum(),
-                        'currency' => $payment->getField('CURRENCY'),
-                        'comment' => $order->getField('USER_DESCRIPTION'),
-                        'expirationDateTime' => $this->qiwiApi->getLifetimeByDay($this->getBusinessValue($payment, 'QIWI_KASSA_BILL_LIFETIME')),
-                        'account' => $order->getField('USER_ID'),
-                        'customFields' => [],
+                        'amount'             => $payment->getSum(),
+                        'currency'           => $payment->getField('CURRENCY'),
+                        'comment'            => $order->getField('USER_DESCRIPTION'),
+                        'expirationDateTime' => $this->qiwiApi->getLifetimeByDay($liveTime),
+                        'account'            => $order->getField('USER_ID'),
+                        'customFields'       => [],
                     ];
                     if (isset($phone)) {
                         $billParams['phone'] = $phone;
@@ -128,24 +117,32 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
                     if (isset($themeCode)) {
                         $billParams['customFields']['themeCode'] = $themeCode;
                     }
-                    //creating bill, forming data for payment page
+                    // Creating bill, forming data for payment page.
                     try {
                         $billInfo = $this->qiwiApi->createBill($billId, $billParams);
+                        // Log api create bill.
+                        $this->log('API_CREATE_BILL', [
+                            'billId' => $billId,
+                            'params' => $billParams,
+                            'result' => $billInfo,
+                        ]);
                         if ($billInfo['status']['value'] !== 'PAID') {
-                            $successURL = ($_SERVER['HTTPS'] ? 'https://' : 'http://') . SITE_SERVER_NAME . '/bitrix/tools/sale_ps_result.php?qiwi=success&p_id=' . $payment->getId();
-                            $successUrl = $successURL . '&back=' . urlencode($APPLICATION->GetCurUri());
+                            $successURL = ($_SERVER['HTTPS'] ? 'https://' : 'http://')
+                                .SITE_SERVER_NAME
+                                .'/bitrix/tools/sale_ps_result.php?qiwi=success&p_id='
+                                .$payment->getId();
+                            $successUrl = $successURL.'&back='.urlencode($APPLICATION->GetCurUri());
                             $payURL = $this->qiwiApi->getPayUrl($billInfo, $successUrl);
-                            $params = array(
-                                'URL' => $payURL,
-                                'SUCCESS_URL' => $successURL,
+                            $params = [
+                                'URL'                => $payURL, 'SUCCESS_URL' => $successURL,
                                 'PAYMENT_SHOULD_PAY' => $payment->getSum(),
-                                'BX_PAYSYSTEM_CODE' => $this->service->getField('ID'),
-                            );
+                                'BX_PAYSYSTEM_CODE'  => $this->service->getField('ID'),
+                            ];
                             $this->setExtraParams($params);
                         }
                     } catch (BillPaymentsException $exception) {
                         $result->addError(new Error($exception->getMessage()));
-                        $error = 'Qiwi: 401: ' . join("\n", $result->getErrorMessages());
+                        $error = 'Qiwi: 401: '.join("\n", $result->getErrorMessages());
                         Logger::addError($error);
                     }
                 }
@@ -163,7 +160,8 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
      *
      * @return array
      */
-    public static function getIndicativeFields() {
+    public static function getIndicativeFields()
+    {
         return ['qiwi'];
     }
 
@@ -175,7 +173,8 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
      * @return mixed
      * @throws \Bitrix\Main\ArgumentException
      */
-    public function getPaymentIdFromRequest(Request $request) {
+    public function getPaymentIdFromRequest(Request $request)
+    {
         $pid = $request->get('p_id');
         if ($pid) {
             return $pid;
@@ -184,20 +183,15 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
         if ($body) {
             $reqData = json_decode($body, true);
         }
-        //log notifies from Qiwi
-        CEventLog::Add([
-            'SEVERITY' => 'SECURITY',
-            'AUDIT_TYPE_ID' => 'PAYMENT_QIWI_NOTIFY',
-            'MODULE_ID' => 'qiwikassa.checkout',
-            'ITEM_ID' => 1,
-            'DESCRIPTION' => print_r($request->toArrayRaw(), true),
-        ]);
+        // Log notifies from Qiwi.
+        $this->log('NOTIFY', ['pid' => $pid, 'reqData' => $body]);
         if (isset($reqData) && isset($reqData['bill']['billId'])) {
             $pid = $this->getPidByQiwiBillId($reqData['bill']['billId']);
-            if (!$pid) {
+            if (! $pid) {
                 http_response_code(404);
                 die();
             }
+
             return $pid;
         }
         http_response_code(404);
@@ -209,16 +203,14 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
      *
      * @param  int  $billId
      *
-     * @return string|bool Order ID if exists or false
+     * @return string|bool Order ID if exists or false.
      * @throws \Bitrix\Main\ArgumentException
      */
-    public function getPidByQiwiBillId($billId) {
+    public function getPidByQiwiBillId($billId)
+    {
         if ($billId) {
-            $payment = Payment::getList([
-                        'limit' => 1,
-                        'select' => ['*'],
-                        'filter' => ['=PS_INVOICE_ID' => $billId],
-            ]);
+            $payment = Payment::getList(['limit' => 1, 'select' => ['*'], 'filter' => ['=PS_INVOICE_ID' => $billId]]);
+
             return $payment->fetch()['ORDER_ID'];
         } else {
             return false;
@@ -238,17 +230,12 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
      * @throws \Bitrix\Main\ObjectException
      * @throws \ErrorException
      */
-    public function processRequest(Payment $payment, Request $request) {
+    public function processRequest(Payment $payment, Request $request)
+    {
         $result = new ServiceResult();
         $action = $request->get('qiwi');
-        //log notifies from Qiwi
-        CEventLog::Add([
-            'SEVERITY' => 'SECURITY',
-            'AUDIT_TYPE_ID' => 'QIWI_KASSA_NOTIFY_PROCESS_REQUEST',
-            'MODULE_ID' => 'qiwikassa.checkout',
-            'ITEM_ID' => 1,
-            'DESCRIPTION' => print_r(['method' => 'processRequest', 'data' => $result->getData()], true),
-        ]);
+        // Log notifies from Qiwi.
+        $this->log('NOTIFY_PROCESS_REQUEST', ['method' => 'processRequest', 'data' => $result->getData()]);
         switch ($action) {
             case 'success':
                 $result = $this->processSuccessAction($payment, $request);
@@ -257,6 +244,7 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
                 $result = $this->processNotifyAction($payment);
                 break;
         }
+
         return $result;
     }
 
@@ -271,7 +259,8 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
      * @throws \Bitrix\Main\ObjectException
      * @throws \ErrorException
      */
-    public function processSuccessAction(Payment $payment, Request $request) {
+    public function processSuccessAction(Payment $payment, Request $request)
+    {
         $result = new ServiceResult();
         $this->initialise($payment);
         $billInfo = $this->checkBill($payment->getField('PS_INVOICE_ID'), $result);
@@ -299,6 +288,7 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
         if (isset($data)) {
             $result->setData($data);
         }
+
         return $result;
     }
 
@@ -308,25 +298,21 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
      * @return ServiceResult
      * @throws \ErrorException
      */
-    public function processNotifyAction(Payment $payment) {
+    public function processNotifyAction(Payment $payment)
+    {
         $this->initialise($payment);
         $body = file_get_contents('php://input');
         if ($body) {
             $billData = json_decode($body, true);
         }
         $result = new ServiceResult();
-        if (!isset($billData) || !$this->checkNotifySignature($billData)) {
+        if (! isset($billData) || ! $this->checkNotifySignature($billData)) {
             $result->setData(['NOTIFY' => ['CODE' => 403]]);
+
             return $result;
         }
-        //log notifies from Qiwi
-        CEventLog::Add([
-            'SEVERITY' => 'SECURITY',
-            'AUDIT_TYPE_ID' => 'QIWI_KASSA_NOTIFY_STEP_2',
-            'MODULE_ID' => 'qiwikassa.checkout',
-            'ITEM_ID' => 2,
-            'DESCRIPTION' => print_r(['method' => 'processNotifyAction', 'data' => $billData], true),
-        ]);
+        // Log notifies from Qiwi.
+        $this->log('NOTIFY_STEP_2', ['method' => 'processNotifyAction', 'data' => $billData]);
         $billData = $billData['bill'];
         switch ($billData['status']['value']) {
             case 'PAID':
@@ -345,13 +331,8 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
         $result->setPsData($psData);
         $result->setData(['NOTIFY' => ['CODE' => 200]]);
         //log notifies from Qiwi
-        CEventLog::Add([
-            'SEVERITY' => 'SECURITY',
-            'AUDIT_TYPE_ID' => 'QIWI_KASSA_NOTIFY_STEP_3',
-            'MODULE_ID' => 'qiwikassa.checkout',
-            'ITEM_ID' => 2,
-            'DESCRIPTION' => print_r(['method' => 'processNotifyAction', 'data' => $result->isSuccess()], true),
-        ]);
+        $this->log('NOTIFY_STEP_3', ['method' => 'processNotifyAction', 'data' => $result->isSuccess()]);
+
         return $result;
     }
 
@@ -363,7 +344,8 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
      *
      * @throws \Bitrix\Main\ArgumentException
      */
-    public function sendJsonResponse($data = [], $code = 200) {
+    public function sendJsonResponse($data = [], $code = 200)
+    {
         http_response_code($code);
         header('Content-Type: application/json');
         header('Pragma: no-cache');
@@ -373,15 +355,27 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
     /**
      * Checks header's parameter from request.
      *
-     * @param array $billData
+     * @param  array  $billData
+     *
      * @return boolean
      */
-    public function checkNotifySignature($billData) {
-        if (!$billData) {
+    public function checkNotifySignature($billData)
+    {
+        if (! $billData) {
             return false;
         }
-        $signature = array_key_exists('HTTP_X_API_SIGNATURE_SHA256', $_SERVER) ? $_SERVER['HTTP_X_API_SIGNATURE_SHA256'] : '';
-        return $this->qiwiApi->checkNotificationSignature($signature, $billData, $this->secretKey);
+        $signature = array_key_exists('HTTP_X_API_SIGNATURE_SHA256', $_SERVER)
+            ? $_SERVER['HTTP_X_API_SIGNATURE_SHA256']
+            : '';
+        $result = $this->qiwiApi->checkNotificationSignature($signature, $billData, $this->secretKey);
+        //log api check signature
+        $this->log('API_CHECK_SIGN', [
+            'signature' => $signature,
+            'notification' => $billData,
+            'result' => $result,
+        ]);
+
+        return $result;
     }
 
     /**
@@ -390,34 +384,40 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
      * @param  int  $billId
      * @param  ServiceResult  $result
      *
-     * @return array|false Bill array if correct BillId or false if bill not found
+     * @return array|false Bill array if correct BillId or false if bill not found.
      * @throws \Bitrix\Main\ArgumentNullException
      * @throws \Bitrix\Main\ArgumentOutOfRangeException
      * @throws \Bitrix\Main\ArgumentTypeException
      * @throws \Bitrix\Main\ObjectException
      */
-    public function checkBill($billId, &$result) {
-        if (!$billId) {
+    public function checkBill($billId, &$result)
+    {
+        if (! $billId) {
             return false;
         }
         try {
             $billInfo = $this->qiwiApi->getBillInfo($billId);
+            //log API get bill info
+            $this->log('API_GET_BILL', ['billId' => $billId, 'result' => $billInfo]);
         } catch (BillPaymentsException $exception) {
             $result->addError(new Error($exception->getMessage()));
-            $error = 'Qiwi: checkBillError: ' . join("\n", $result->getErrorMessages());
+            $error = 'Qiwi: checkBillError: '.join("\n", $result->getErrorMessages());
             Logger::addError($error);
             $billInfo = false;
         }
+
         return $billInfo;
     }
 
     /**
      * Needs for pay systems with test modes. Qiwi has not this mode.
      *
-     * @param Payment $payment
+     * @param  Payment  $payment
+     *
      * @return bool
      */
-    protected function isTestMode(Payment $payment = null) {
+    protected function isTestMode(Payment $payment = null)
+    {
         return false;
     }
 
@@ -426,7 +426,8 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
      *
      * @return void
      */
-    public function getCurrencyList() {
+    public function getCurrencyList()
+    {
         return;
     }
 
@@ -438,7 +439,8 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
      *
      * @throws \Bitrix\Main\ArgumentException
      */
-    public function sendResponse(ServiceResult $result, Request $request) {
+    public function sendResponse(ServiceResult $result, Request $request)
+    {
         global $APPLICATION;
         $APPLICATION->RestartBuffer();
         $data = $result->getData();
@@ -456,6 +458,7 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
         } else {
             echo 'SUCCESS';
         }
+
         return;
     }
 
@@ -471,51 +474,43 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
      * @throws \Bitrix\Main\ObjectException
      * @throws \ErrorException
      */
-
-    public function cancel(Payment $payment){
+    public function cancel(Payment $payment)
+    {
         $result = new ServiceResult();
         $billId = $payment->getField('PS_INVOICE_ID');
         $billInfo = null;
         //log notifies from Qiwi
-        CEventLog::Add([
-            'SEVERITY' => 'SECURITY',
-            'AUDIT_TYPE_ID' => 'QIWI_KASSA_NOTIFY_CANCEL_START',
-            'MODULE_ID' => 'qiwikassa.checkout',
-            'ITEM_ID' => 3,
-            'DESCRIPTION' => print_r(['method' => 'cancel', 'billId' => $billId], true),
-        ]);
-        if ($billId){
+        $this->log('NOTIFY_CANCEL_START', ['method' => 'cancel', 'billId' => $billId]);
+        if ($billId) {
             $this->initialise($payment);
-            try{
+            try {
                 $billInfo = $this->qiwiApi->cancelBill($billId);
+                //log API cancel bill
+                $this->log('API_CANCEL', ['billId' => $billId, 'result' => $billInfo]);
                 $result->setOperationType(ServiceResult::MONEY_LEAVING);
                 $psData['PS_STATUS_CODE'] = $billInfo['status']['value'];
                 $result->setPsData($psData);
             } catch (BillPaymentsException $exception) {
                 $result->addError(new Error($exception->getMessage()));
-                $error = 'Qiwi: cancelError: ' . join("\n", $result->getErrorMessages());
+                $error = 'Qiwi: cancelError: '.join("\n", $result->getErrorMessages());
                 Logger::addError($error);
             }
         }
         //log notifies from Qiwi
-        CEventLog::Add([
-            'SEVERITY' => 'SECURITY',
-            'AUDIT_TYPE_ID' => 'QIWI_KASSA_NOTIFY_CANCEL_END',
-            'MODULE_ID' => 'qiwikassa.checkout',
-            'ITEM_ID' => 3,
-            'DESCRIPTION' => print_r(['method' => 'cancel', 'data' => $billInfo], true),
-        ]);
+        $this->log('NOTIFY_CANCEL_END', ['method' => 'cancel', 'data' => $billInfo]);
+
         return $result;
     }
 
     /**
-     * Confirm Qiwi payment, we don't use this method;
+     * Confirm Qiwi payment, we don't use this method.
      *
      * @param  Payment  $payment
      *
      * @return void
      */
-    public function confirm(Payment $payment){
+    public function confirm(Payment $payment)
+    {
         return;
     }
 
@@ -535,7 +530,8 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
      * @throws \ErrorException
      * @throws \Exception
      */
-    public function refund(Payment $payment, $refundableSum) {
+    public function refund(Payment $payment, $refundableSum)
+    {
         $this->initialise($payment);
         $result = new ServiceResult();
         $billId = $payment->getField('PS_INVOICE_ID');
@@ -546,35 +542,38 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
         $saved = false;
         try {
             $response = $this->qiwiApi->refund($billId, $refundId, $amount, $currency);
-            if (!$response['errorCode']) {
+            //log API create refund
+            $this->log('API_REFUND', [
+                'billId'   => $billId,
+                'refundId' => $refundId,
+                'amount'   => $amount,
+                'currency' => $currency,
+                'result'   => $response,
+            ]);
+            if (! $response['errorCode']) {
                 $payment->setField('PS_STATUS_CODE', $response['status']);
-                $payment->setField('COMMENTS', 'Qiwi refundId: ' . $refundId);
+                $payment->setField('COMMENTS', 'Qiwi refundId: '.$refundId);
                 $saved = $payment->save()->isSuccess();
                 $result->setOperationType(ServiceResult::MONEY_LEAVING);
             } else {
-                $result->addError(new Error($response['errorCode'] . ' : ' . $response['description']));
-                $error = 'Qiwi: refundError: ' . join("\n", $result->getErrorMessages());
+                $result->addError(new Error($response['errorCode'].' : '.$response['description']));
+                $error = 'Qiwi: refundError: '.join("\n", $result->getErrorMessages());
                 Logger::addError($error);
             }
         } catch (BillPaymentsException $exception) {
             $result->addError(new Error($exception->getMessage()));
-            $error = 'Qiwi: refundError: ' . join("\n", $result->getErrorMessages());
+            $error = 'Qiwi: refundError: '.join("\n", $result->getErrorMessages());
             Logger::addError($error);
         }
         //log notifies from Qiwi
-        CEventLog::Add([
-            'SEVERITY' => 'SECURITY',
-            'AUDIT_TYPE_ID' => 'QIWI_KASSA_NOTIFY_REFUND',
-            'MODULE_ID' => 'qiwikassa.checkout',
-            'ITEM_ID' => 2,
-            'DESCRIPTION' => print_r([
-                'method' => 'refund',
-                'refundId' => $refundId,
-                'refundableSum' => $refundableSum,
-                'response' => $response,
-                'saved' => $saved,
-            ], true),
+        $this->log('NOTIFY_REFUND', [
+            'method'        => 'refund',
+            'refundId'      => $refundId,
+            'refundableSum' => $refundableSum,
+            'response'      => $response,
+            'saved'         => $saved,
         ]);
+
         return $result;
     }
 
@@ -583,7 +582,44 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
      *
      * @return bool
      */
-    public function isRefundableExtended() {
+    public function isRefundableExtended()
+    {
         return true;
+    }
+
+    /**
+     * Init api.
+     *
+     * @param  Payment  $payment
+     *
+     * @throws \ErrorException
+     */
+    protected function initialise(Payment $payment)
+    {
+        $this->debug = $this->getBusinessValue($payment, 'QIWI_KASSA_USE_DEBUG') == 'Y';
+        $this->secretKey = $this->getBusinessValue($payment, 'QIWI_KASSA_SECRET_API_KEY');
+        $this->qiwiApi = new BillPayments($this->secretKey, [
+            CURLOPT_SSL_VERIFYPEER => true, CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_CAINFO         => dirname(__FILE__, 3).'/cacert.pem',
+        ]);
+    }
+
+    /**
+     * Log event.
+     *
+     * @param  string  $type
+     * @param  array  $desc
+     */
+    protected function log($type, array $desc)
+    {
+        if ($this->debug) {
+            CEventLog::Add([
+                'SEVERITY'      => 'DEBUG',
+                'AUDIT_TYPE_ID' => 'PAYMENT_QIWI_'.$type,
+                'MODULE_ID'     => 'qiwikassa.checkout',
+                'ITEM_ID'       => 1,
+                'DESCRIPTION'   => $desc,
+            ]);
+        }
     }
 }
