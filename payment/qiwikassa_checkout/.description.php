@@ -49,19 +49,31 @@ $data = [
             'SORT'        => 600,
             'DESCRIPTION' => Loc::getMessage('QIWI_KASSA_THEME_CODE_DESC'),
             'GROUP'       => 'CONNECT_SETTINGS_QIWI',
+            'DEFAULT'     => [
+                'PROVIDER_VALUE' => '',
+                'PROVIDER_KEY'   => 'INPUT',
+            ],
         ],
         'QIWI_KASSA_USE_POPUP'      => [
-            'NAME'  => Loc::getMessage('QIWI_KASSA_USE_POPUP'),
-            'SORT'  => 700,
-            'GROUP' => 'CONNECT_SETTINGS_QIWI',
-            'INPUT' => [
+            'NAME'    => Loc::getMessage('QIWI_KASSA_USE_POPUP'),
+            'SORT'    => 700,
+            'GROUP'   => 'CONNECT_SETTINGS_QIWI',
+            'INPUT'   => [
                 'TYPE' => 'Y/N',
+            ],
+            'DEFAULT' => [
+                'PROVIDER_VALUE' => 'N',
+                'PROVIDER_KEY'   => 'INPUT',
             ],
         ],
         'QIWI_KASSA_USE_DEBUG'      => [
-            'NAME'  => Loc::getMessage('QIWI_KASSA_USE_DEBUG'), 'SORT' => 800, 'GROUP' => 'CONNECT_SETTINGS_QIWI',
-            'INPUT' => [
+            'NAME'    => Loc::getMessage('QIWI_KASSA_USE_DEBUG'), 'SORT' => 800, 'GROUP' => 'CONNECT_SETTINGS_QIWI',
+            'INPUT'   => [
                 'TYPE' => 'Y/N',
+            ],
+            'DEFAULT' => [
+                'PROVIDER_VALUE' => 'N',
+                'PROVIDER_KEY'   => 'INPUT',
             ],
         ],
     ],
