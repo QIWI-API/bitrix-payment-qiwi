@@ -2,7 +2,7 @@
     "name": "qiwi/bitrix-payment-qiwi",
     "description": "QIWI payment integration for 1C Bitrix",
     "type": "bitrix-d7-module",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "license": "MIT",
     "homepage": "https://github.com/QIWI-API/bitrix-payment-qiwi",
     "support": {
