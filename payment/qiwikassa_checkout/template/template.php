@@ -3,8 +3,17 @@
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
 
+/** @var \Bitrix\Sale\Payment $payment */
+/** @var array $params */
+
 Asset::getInstance()->addCss('/bitrix/themes/.default/sale.css');
 Loc::loadMessages(__FILE__);
+
+$popup = $params['QIWI_KASSA_USE_POPUP'] == 'Y';
+
+if ($popup) {
+    Asset::getInstance()->addJs('https://oplata.qiwi.com/popup/v1.js');
+}
 
 ?>
 <div class="sale-qiwi-paysystem-wrapper">
@@ -15,7 +24,7 @@ Loc::loadMessages(__FILE__);
     <div>
         <div class="sale-paysystem-qiwi-button-container">
             <span class="sale-paysystem-qiwi-button">
-                <a href="<?=$params['URL'];?>" class="sale-paysystem-qiwi-button-item">
+                <a id="paysystem-qiwi-button" href="<?=$params['URL'];?>" class="sale-paysystem-qiwi-button-item">
                     <?=Loc::getMessage('SALE_HANDLERS_QIWI_KASSA_BUTTON_PAID')?>
                 </a>
             </span>
@@ -30,6 +39,17 @@ Loc::loadMessages(__FILE__);
         </p>
     </div>
 </div>
+<?php if ($popup) : ?>
+<script>
+    window.addEventListener('load', function() {
+        document.getElementById('paysystem-qiwi-button').addEventListener('click', function(event) {
+            event.preventDefault();
+            QiwiCheckout.openInvoice({ payUrl: this.getAttribute('href') });
+            return false;
+        });
+    });
+</script>
+<?php endif; ?>
 <style type="text/css">
     .sale-qiwi-paysystem-wrapper {
         position: relative;
