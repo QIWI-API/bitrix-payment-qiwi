@@ -16,6 +16,7 @@
     ],
     "require": {
         "php": ">=7.1",
+        "ext-json": "*",
         "ext-curl": "*",
         "composer/installers": "^1",
         "qiwi/bill-payments-php-sdk": "^0"

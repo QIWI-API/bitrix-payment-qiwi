@@ -19,7 +19,7 @@ Loc::loadMessages(__FILE__);
                     <?= Loc::getMessage('SALE_HANDLERS_QIWI_KASSA_BUTTON_PAID') ?>
                 </a>
             </span>
-            <span class="sale-paysystem-qiwi-button-descrition">
+            <span class="sale-paysystem-qiwi-button-description">
                 <?= Loc::getMessage('SALE_HANDLERS_QIWI_KASSA_REDIRECT_MESS') ?>
             </span>
         </div>
@@ -58,7 +58,7 @@ Loc::loadMessages(__FILE__);
         display: inline-block;
         margin: 26px 10px 26px 0;
     }
-    .sale-paysystem-qiwi-button-descrition {
+    .sale-paysystem-qiwi-button-description {
         display: inline-block;
         margin: 0 0 15px 0;
         font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;

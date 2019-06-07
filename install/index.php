@@ -1,7 +1,5 @@
 <?php
 
-use Bitrix\Main\Localization\Loc;
-
 // Localize file.
 IncludeModuleLangFile(__FILE__);
 
@@ -19,6 +17,7 @@ class qiwikassa_checkout extends CModule
     {
         // Get version.
         require __DIR__ . DIRECTORY_SEPARATOR . 'version.php';
+        /** @var array $arModuleVersion Module version metadata. */
 
         $this->MODULE_NAME = GetMessage('QIWI_KASSA_MODULE_NAME');
         $this->MODULE_DESCRIPTION = GetMessage('QIWI_KASSA_MODULE_DESCRIPTION');
@@ -41,8 +40,8 @@ class qiwikassa_checkout extends CModule
     /**
      * Recursive copy files to directory
      *
-     * @param $from Source path
-     * @param $to Distance directory path
+     * @param string $from Source path
+     * @param string $to Distance directory path
      */
     protected function copyRecursive($from, $to)
     {
@@ -93,11 +92,12 @@ class qiwikassa_checkout extends CModule
     }
 
     /**
-     * Recursive delete fuiles and dirs.
+     * Recursive delete files and dirs.
      *
-     * @param string $path
-     * @param bool $onlyIfEmpty Apply on empty dirs only.
-     * @return bool
+     * @param  string  $path
+     * @param  bool  $onlyIfEmpty  Apply on empty dirs only.
+     *
+     * @return void
      */
     protected function deleteRecursive($path, $onlyIfEmpty = false)
     {

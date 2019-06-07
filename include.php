@@ -1,9 +1,14 @@
 <?php
 
 use Bitrix\Main\Loader;
+use Bitrix\Main\LoaderException;
 
 // Validate commerce modules exists.
-if (!Loader::includeModule('sale') || !Loader::includeModule('catalog')) {
+try {
+    if (! Loader::includeModule('sale') || ! Loader::includeModule('catalog')) {
+        return;
+    }
+} catch (LoaderException $e) {
     return;
 }
 
