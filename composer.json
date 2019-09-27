@@ -2,18 +2,12 @@
     "name": "qiwi/bitrix-payment-qiwi",
     "description": "QIWI payment integration for 1C Bitrix",
     "type": "bitrix-d7-module",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "license": "MIT",
     "homepage": "https://github.com/QIWI-API/bitrix-payment-qiwi",
     "support": {
         "issues": "https://github.com/QIWI-API/bitrix-payment-qiwi/issues"
     },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://wpackagist.org"
-        }
-    ],
     "require": {
         "php": ">=7.1",
         "ext-json": "*",
@@ -22,12 +16,32 @@
         "qiwi/bill-payments-php-sdk": "^0"
     },
     "require-dev": {
-        "phpdocumentor/phpdocumentor": "^2"
-    },
-    "scripts": {
-        "docs": "phpdoc run"
+        "wannabe-pro/composer-release-plugin-zip": "^0"
     },
     "extra": {
-        "installer-name": "qiwikassa.checkout"
+        "installer-name": "qiwikassa.checkout",
+        "build-plugin-dev": {
+            "build/qiwikassa.checkout.zip": {
+                "builder": "zip",
+                "composer": {
+                    "minimum-stability": "stable",
+                    "prefer-stable": true,
+                    "require": {
+                        "qiwi/bill-payments-php-sdk": "^0"
+                    },
+                    "config": {
+                        "platform": {
+                            "php": "5.6.0"
+                        }
+                    }
+                },
+                "mapper": {
+                    "/^.*\\.php$/": "/.last_version/$0",
+                    "/^.*cacert\\.pem$/": "/.last_version/$0",
+                    "/^.*\\.png$/": "/.last_version/$0",
+                    "/^vendor((?!(BillPayments\\.php|BillPaymentsException\\.php|Curl\\.php)).)*$/": false
+                }
+            }
+        }
     }
 }
