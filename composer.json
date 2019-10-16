@@ -16,12 +16,38 @@
         "qiwi/bill-payments-php-sdk": "^0"
     },
     "require-dev": {
-        "wannabe-pro/composer-release-plugin-zip": "^0"
+        "wannabe-pro/composer-release-plugin": "^0.1"
     },
     "extra": {
         "installer-name": "qiwikassa.checkout",
         "build-plugin-dev": {
-            "build/qiwikassa.checkout.zip": {
+            "build/cp1251.qiwikassa.checkout.zip": {
+                "builder": "zip",
+                "composer": {
+                    "minimum-stability": "stable",
+                    "prefer-stable": true,
+                    "require": {
+                        "qiwi/bill-payments-php-sdk": "^0"
+                    },
+                    "config": {
+                        "platform": {
+                            "php": "5.6.0"
+                        }
+                    }
+                },
+                "mapper": {
+                    "/^.*\\.php$/": {
+                        "result": "/.last_version/$0",
+                        "config": {
+                            "filters": ["convert.iconv.utf-8.cp1251"]
+                        }
+                    },
+                    "/^.*cacert\\.pem$/": "/.last_version/$0",
+                    "/^.*\\.png$/": "/.last_version/$0",
+                    "/^vendor((?!(BillPayments\\.php|BillPaymentsException\\.php|Curl\\.php)).)*$/": false
+                }
+            },
+            "build/utf-8.qiwikassa.checkout.zip": {
                 "builder": "zip",
                 "composer": {
                     "minimum-stability": "stable",
