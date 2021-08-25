@@ -4,6 +4,7 @@ namespace Sale\Handlers\PaySystem;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
+use Bitrix\Sale\PaySystem\ICheckable;
 use Qiwi\Api\BillPayments;
 use Qiwi\Api\BillPaymentsException;
 use Bitrix\Main\Error;
@@ -38,7 +39,7 @@ Loc::loadMessages(__FILE__);
  *
  * @package Sale\Handlers\PaySystem
  */
-class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtended, IHold
+class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtended, IHold, ICheckable
 {
     /** @var string The secret key. */
     protected $secretKey;
@@ -215,6 +216,47 @@ class Qiwikassa_CheckoutHandler extends ServiceHandler implements IRefundExtende
         } else {
             return false;
         }
+    }
+
+    /**
+     * Check order status.
+     *
+     * @param Payment $payment
+     * @return ServiceResult
+     * @throws \Bitrix\Main\ArgumentNullException
+     * @throws \Bitrix\Main\ArgumentOutOfRangeException
+     * @throws \Bitrix\Main\ArgumentTypeException
+     * @throws \Bitrix\Main\ObjectException
+     * @throws \ErrorException
+     */
+    public function check(Payment $payment)
+    {
+        $result = new ServiceResult();
+        $this->initialise($payment);
+        $billInfo = $this->checkBill($payment->getField('PS_INVOICE_ID'), $result);
+        if ($result->isSuccess()) {
+            if ($billInfo) {
+                switch ($billInfo['status']['value']) {
+                    case 'PAID':
+                        $result->setOperationType(ServiceResult::MONEY_COMING);
+                        break;
+                    case 'WAITING':
+                    case 'REJECTED':
+                    case 'EXPIRED':
+                        $result->setOperationType(ServiceResult::MONEY_LEAVING);
+                        break;
+                }
+                $psData['PS_STATUS_CODE'] = $billInfo['status']['value'];
+            }
+        }
+        if (isset($psData)) {
+            $result->setPsData($psData);
+        }
+        if (isset($data)) {
+            $result->setData($data);
+        }
+
+        return $result;
     }
 
     /**

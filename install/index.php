@@ -84,6 +84,7 @@ class qiwikassa_checkout extends CModule
             dirname(__FILE__, 4).'/php_interface/include/sale_payment/qiwikassa_checkout'
         );
         $this->copyRecursive(__DIR__.'/images', dirname(__FILE__, 5).'/bitrix/images/sale/sale_payments');
+        $this->copyRecursive(__DIR__.'/admin', dirname(__FILE__, 5).'/bitrix/admin');
     }
 
     /**
@@ -150,6 +151,13 @@ class qiwikassa_checkout extends CModule
             if ($file->isFile()) {
                 $this->deleteRecursive(
                     dirname(__FILE__, 5).'/bitrix/images/sale/sale_payments/'.$file->getBasename()
+                );
+            }
+        }
+        foreach (new DirectoryIterator(__DIR__.'/admin') as $file) {
+            if ($file->isFile()) {
+                $this->deleteRecursive(
+                    dirname(__FILE__, 5).'/bitrix/admin/'.$file->getBasename()
                 );
             }
         }
